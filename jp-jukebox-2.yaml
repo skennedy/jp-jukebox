@@ -1,0 +1,13 @@
+substitutions:
+  name: jp-jukebox-2
+  friendly_name: JP Jukebox 2
+  static_ip: 192.168.1.12
+  startup_sound_file: Home_Connected_Male
+
+packages:
+  device:
+    url: https://github.com/skennedy/jp-jukebox.git
+    ref: main
+    refresh: 0s
+    files:
+      - jp-jukebox.yaml
