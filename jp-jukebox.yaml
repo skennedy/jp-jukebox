@@ -52,7 +52,7 @@ wifi:
     password: !secret wifi_ap_password
 
 psram:
-  mode: octo
+  mode: octal
   speed: 80MHz
 
 captive_portal:
