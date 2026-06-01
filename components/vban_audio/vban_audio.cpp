@@ -77,6 +77,23 @@ void VBANAudio::microphone_bytes_callback_(const std::vector<uint8_t> &data) {
   const size_t bytes_per_sample = bits_per_sample_ / 8;
   const size_t total_samples = data.size() / bytes_per_sample;
 
+  // Periodically log sample range to confirm bit alignment and signal level.
+  static uint32_t cb_count = 0;
+  if (++cb_count % 200 == 1) {
+    ESP_LOGI(TAG, "mic callback: data_bytes=%u bps=%u total_samples=%u",
+             (unsigned)data.size(), bits_per_sample_, (unsigned)total_samples);
+    if (bits_per_sample_ == 32 && total_samples > 0) {
+      const int32_t *raw = reinterpret_cast<const int32_t *>(data.data());
+      int32_t mn = raw[0], mx = raw[0];
+      for (size_t i = 1; i < total_samples && i < 64; i++) {
+        if (raw[i] < mn) mn = raw[i];
+        if (raw[i] > mx) mx = raw[i];
+      }
+      ESP_LOGI(TAG, "  int32 range: min=%ld max=%ld (left-just would be ~±2^31, right-just ~±2^23)",
+               (long)mn, (long)mx);
+    }
+  }
+
   if (bits_per_sample_ == 32) {
     // 32-bit frames from ESP32 I2S. For PCM1808, 24-bit audio sits in the
     // upper 24 bits of each int32_t — pass through without shifting so the
@@ -106,8 +123,11 @@ void VBANAudio::push_samples_(const int32_t *samples, size_t count) {
       pkt.samples[i] = static_cast<int32_t>(s);
     }
 
-    if (xQueueSend(sample_queue_, &pkt, 0) != pdTRUE)
+    if (xQueueSend(sample_queue_, &pkt, 0) != pdTRUE) {
+      static uint32_t drop_count = 0;
+      ESP_LOGW(TAG, "Queue full — dropped packet (total drops: %lu)", (unsigned long)++drop_count);
       return;
+    }
 
     samples += VBAN_SAMPLES_PER_PACKET;
     count -= VBAN_SAMPLES_PER_PACKET;
