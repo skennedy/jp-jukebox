@@ -74,27 +74,31 @@ void VBANAudio::microphone_bytes_callback_(const std::vector<uint8_t> &data) {
   if (data.empty())
     return;
 
-  const size_t bytes_per_sample = bits_per_sample_ / 8;
-  const size_t total_samples = data.size() / bytes_per_sample;
+  // I2S always delivers 32-bit frames regardless of VBAN output format.
+  const size_t total_samples = data.size() / 4;
+  const int32_t *raw = reinterpret_cast<const int32_t *>(data.data());
 
-  // Periodically log sample range to confirm bit alignment and signal level.
+  // Count samples near PCM1808 full scale (24-bit left-justified max = 0x7FFFFF00).
+  // Values above 97% of that ceiling indicate ADC saturation/clipping.
+  static uint32_t clip_count = 0;
   static uint32_t cb_count = 0;
-  if (++cb_count % 200 == 1) {
-    ESP_LOGI(TAG, "mic callback: data_bytes=%u bps=%u total_samples=%u",
-             (unsigned)data.size(), bits_per_sample_, (unsigned)total_samples);
-    if (bits_per_sample_ == 32 && total_samples > 0) {
-      const int32_t *raw = reinterpret_cast<const int32_t *>(data.data());
-      int32_t mn = raw[0], mx = raw[0];
-      for (size_t i = 1; i < total_samples && i < 64; i++) {
-        if (raw[i] < mn) mn = raw[i];
-        if (raw[i] > mx) mx = raw[i];
-      }
-      ESP_LOGI(TAG, "  int32 range: min=%ld max=%ld (left-just would be ~±2^31, right-just ~±2^23)",
-               (long)mn, (long)mx);
-    }
+  const int32_t clip_threshold = 0x7C000000;
+  for (size_t i = 0; i < total_samples; i++) {
+    if (raw[i] > clip_threshold || raw[i] < -clip_threshold)
+      clip_count++;
   }
 
-  // I2S always delivers 32-bit frames; bits_per_sample_ only controls VBAN output format.
+  if (++cb_count % 200 == 1) {
+    int32_t mn = raw[0], mx = raw[0];
+    for (size_t i = 1; i < total_samples; i++) {
+      if (raw[i] < mn) mn = raw[i];
+      if (raw[i] > mx) mx = raw[i];
+    }
+    ESP_LOGI(TAG, "mic: samples=%u range min=%ld max=%ld clips_since_last=%lu",
+             (unsigned)total_samples, (long)mn, (long)mx, (unsigned long)clip_count);
+    clip_count = 0;
+  }
+
   std::vector<int32_t> converted(total_samples);
   if (bits_per_sample_ == 16) {
     // PCM1808 24-bit audio is left-justified in bits 31-8.
