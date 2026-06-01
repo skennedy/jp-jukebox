@@ -54,12 +54,9 @@ logger:
   hardware_uart: USB_CDC
   level: VERBOSE
 
-# VBAN external component
+# VBAN component (local fork with multi-format support)
 external_components:
-  - source:
-      type: git
-      url: https://github.com/TheEris/Esphome-VBAN
-      ref: main
+  - source: components/
     components: [ vban_audio ]
 
 # I²S bus — PCM1808 ADC as input
@@ -78,16 +75,8 @@ microphone:
     adc_type: external
     sample_rate: 48000
     pdm: false
-    bits_per_sample: 16bit
+    bits_per_sample: 32bit
     channel: stereo
-    on_data:
-      then:
-        - lambda: |-
-            int32_t sum = 0;
-            const int16_t *s = (const int16_t*)x.data();
-            for (size_t i = 0; i < x.size()/2; i++) sum += abs(s[i]);
-            if (sum > 0) ESP_LOGI("dbg", "audio: %d samples non-zero sum=%d", x.size()/2, sum);
-            else ESP_LOGW("dbg", "silence: %d samples all zero", x.size()/2);
 
 # VBAN transmitter
 vban_audio:
@@ -97,6 +86,8 @@ vban_audio:
   port: 6980
   stream_name: turntable
   sample_rate: 48000
+  bits_per_sample: 32
+  channels: 2
   gain: 1.0
 
 # Switch to start/stop streaming
