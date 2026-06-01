@@ -94,21 +94,18 @@ void VBANAudio::microphone_bytes_callback_(const std::vector<uint8_t> &data) {
     }
   }
 
-  if (bits_per_sample_ == 32) {
-    // 32-bit frames from ESP32 I2S. For PCM1808, 24-bit audio sits in the
-    // upper 24 bits of each int32_t — pass through without shifting so the
-    // full resolution is preserved in the VBAN INT32 stream.
-    push_samples_(reinterpret_cast<const int32_t *>(data.data()), total_samples);
-  } else if (bits_per_sample_ == 16) {
-    // Sign-extend 16-bit samples into int32_t for uniform internal storage.
-    const int16_t *raw = reinterpret_cast<const int16_t *>(data.data());
-    std::vector<int32_t> converted(total_samples);
+  // I2S always delivers 32-bit frames; bits_per_sample_ only controls VBAN output format.
+  std::vector<int32_t> converted(total_samples);
+  if (bits_per_sample_ == 16) {
+    // PCM1808 24-bit audio is left-justified in bits 31-8.
+    // Right-shift by 16 extracts the top 16 bits for INT16 VBAN output.
     for (size_t i = 0; i < total_samples; i++)
-      converted[i] = static_cast<int32_t>(raw[i]);
-    push_samples_(converted.data(), total_samples);
+      converted[i] = static_cast<int32_t>((int16_t)(raw[i] >> 16));
   } else {
-    ESP_LOGW(TAG, "Unsupported bits_per_sample %u, skipping", bits_per_sample_);
+    for (size_t i = 0; i < total_samples; i++)
+      converted[i] = raw[i];
   }
+  push_samples_(converted.data(), total_samples);
 }
 
 void VBANAudio::push_samples_(const int32_t *samples, size_t count) {

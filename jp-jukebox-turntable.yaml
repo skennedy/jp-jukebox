@@ -87,7 +87,7 @@ vban_audio:
   port: 6980
   stream_name: turntable
   sample_rate: 48000
-  bits_per_sample: 32
+  bits_per_sample: 16
   channels: 2
   gain: 1.0
 
