@@ -22,10 +22,6 @@ esp32:
     type: esp-idf
     version: recommended
     sdkconfig_options:
-<<<<<<< Updated upstream
-      CONFIG_ESP32_S3_BOX_BOARD: "y"
-=======
->>>>>>> Stashed changes
       COMPILER_OPTIMIZATION_SIZE: "y"
     advanced:
       ignore_efuse_mac_crc: false
@@ -56,10 +52,7 @@ captive_portal:
 
 logger:
   hardware_uart: USB_CDC
-<<<<<<< Updated upstream
-=======
   level: VERBOSE
->>>>>>> Stashed changes
 
 # VBAN external component
 external_components:
@@ -86,10 +79,6 @@ microphone:
     sample_rate: 48000
     pdm: false
     bits_per_sample: 16bit
-<<<<<<< Updated upstream
-    mclk_multiple: 384
-    channel: stereo
-=======
     channel: stereo
     on_data:
       then:
@@ -99,7 +88,6 @@ microphone:
             for (size_t i = 0; i < x.size()/2; i++) sum += abs(s[i]);
             if (sum > 0) ESP_LOGI("dbg", "audio: %d samples non-zero sum=%d", x.size()/2, sum);
             else ESP_LOGW("dbg", "silence: %d samples all zero", x.size()/2);
->>>>>>> Stashed changes
 
 # VBAN transmitter
 vban_audio:
