@@ -58,6 +58,7 @@ logger:
 external_components:
   - source: github://skennedy/jp-jukebox@main
     components: [ vban_audio ]
+    refresh: always
 
 # I²S bus — PCM1808 ADC as input
 i2s_audio:
