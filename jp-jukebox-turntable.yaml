@@ -56,9 +56,7 @@ logger:
 
 # VBAN component (local fork with multi-format support)
 external_components:
-  - source:
-      type: local
-      path: components
+  - source: github://skennedy/jp-jukebox@main
     components: [ vban_audio ]
 
 # I²S bus — PCM1808 ADC as input
