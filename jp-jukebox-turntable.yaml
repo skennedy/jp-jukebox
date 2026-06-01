@@ -56,7 +56,9 @@ logger:
 
 # VBAN component (local fork with multi-format support)
 external_components:
-  - source: components/
+  - source:
+      type: local
+      path: components
     components: [ vban_audio ]
 
 # I²S bus — PCM1808 ADC as input
