@@ -60,10 +60,21 @@ uint8_t VBANAudio::vban_sr_index_(uint32_t rate) {
     case 48000:  return 3;
     case 96000:  return 4;
     case 192000: return 5;
+    case 384000: return 6;
     case 8000:   return 7;
     case 16000:  return 8;
     case 32000:  return 9;
     case 64000:  return 10;
+    case 128000: return 11;
+    case 256000: return 12;
+    case 512000: return 13;
+    case 11025:  return 14;
+    case 22050:  return 15;
+    case 44100:  return 16;
+    case 88200:  return 17;
+    case 176400: return 18;
+    case 352800: return 19;
+    case 705600: return 20;
     default:
       ESP_LOGW(TAG, "Unsupported sample rate %u, defaulting to 48000", rate);
       return 3;
