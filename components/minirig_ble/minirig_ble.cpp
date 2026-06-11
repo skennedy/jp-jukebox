@@ -73,12 +73,11 @@ bool MinirigBLEComponent::parse_device(const esp32_ble_tracker::ESPBTDevice &dev
 
 void MinirigBLEComponent::connect_(MinirigDevice &dev) {
     if (gattc_if_ == 0xFF) {
-        ESP_LOGW(TAG, "[%s] GATT Client tracking engine not fully initialized yet.", dev.name.c_str());
-        dev.state = STATE_IDLE;
+        ESP_LOGW(TAG, "[%s] GATT Client tracking engine not fully initialized yet. Will retry...", dev.name.c_str());
+        dev.state = STATE_IDLE; // Reset to idle so it can retry next scan
         return;
     }
     dev.state = STATE_CONNECTING;
-    // Uses random BLE tracking addressing types natively
     esp_ble_gattc_open(gattc_if_, dev.mac, BLE_ADDR_TYPE_RANDOM, true);
 }
 
@@ -117,9 +116,10 @@ void MinirigBLEComponent::handle_notify_(MinirigDevice &dev, const uint8_t *data
 void MinirigBLEComponent::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) {
     switch (event) {
     case ESP_GATTC_REG_EVT:
-        if (param->reg.status == ESP_GATT_OK) {
+        // Only accept the registration if it matches our custom app_id (1)
+        if (param->reg.status == ESP_GATT_OK && param->reg.app_id == 1) {
             gattc_if_ = gattc_if;
-            ESP_LOGD(TAG, "GATT API successfully bound to interface slot ID: %d", gattc_if_);
+            ESP_LOGI(TAG, "GATT API successfully bound to custom interface slot ID: %d", gattc_if_);
         }
         break;
 
