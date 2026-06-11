@@ -18,10 +18,10 @@ static void gattc_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble
 void MinirigBLEComponent::setup() {
     s_instance = this;
     
-    // 1. Hook into ESPHome's internal tracker framework
-    global_esp32_ble_tracker->register_listener(this);
+    // REMOVED: global_esp32_ble_tracker->register_listener(this);
+    // ESPHome handles this automatically via the python script!
     
-    // 2. Register callback using ESPHome's internal open ID slots
+    // Register callback using ESPHome's internal open ID slots
     esp_ble_gattc_register_callback(gattc_cb);
     esp_ble_gattc_app_register(1); // Keep separated from ESPHome app ID 0
     
