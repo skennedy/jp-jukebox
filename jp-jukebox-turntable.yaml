@@ -52,7 +52,7 @@ captive_portal:
 
 logger:
   hardware_uart: USB_CDC
-  level: VERBOSE
+  level: DEBUG
 
 # VBAN component (local fork with multi-format support)
 external_components:
@@ -74,7 +74,7 @@ microphone:
     i2s_audio_id: i2s_in
     i2s_din_pin: GPIO8
     adc_type: external
-    sample_rate: 48000
+    sample_rate: 44100
     pdm: false
     bits_per_sample: 32bit
     channel: stereo
@@ -86,7 +86,7 @@ vban_audio:
   ip_address: !secret ma_server_ip
   port: 6980
   stream_name: turntable
-  sample_rate: 48000
+  sample_rate: 44100
   bits_per_sample: 16
   channels: 2
   gain: 1.0
