@@ -150,11 +150,11 @@ int MinirigBLEComponent::parse_voltage_(const std::string &response) {
     // "CVB=+11773" → 11773
     auto pos = response.find('+');
     if (pos == std::string::npos) return -1;
-    try {
-        return std::stoi(response.substr(pos + 1));
-    } catch (...) {
-        return -1;
-    }
+    const char *start = response.c_str() + pos + 1;
+    char *end = nullptr;
+    long val = strtol(start, &end, 10);
+    if (end == start) return -1;  // no digits parsed
+    return static_cast<int>(val);
 }
 
 int MinirigBLEComponent::voltage_to_pct_(int mv, int v_min, int v_max) {
