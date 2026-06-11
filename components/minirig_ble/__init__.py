@@ -12,7 +12,7 @@ from esphome.const import (
 )
 
 # Crucial dependencies to ensure the compiler loads our parent classes
-DEPENDENCIES = ["esp32_ble_tracker"]
+DEPENDENCIES = ["esp32_ble_tracker", "esp32_ble"]
 AUTO_LOAD = ["sensor"]
 MULTI_CONF = True
 

@@ -7,24 +7,16 @@ namespace esphome {
 namespace minirig_ble {
 
 const char *const MinirigBLEComponent::TAG = "minirig_ble";
-static MinirigBLEComponent *s_instance = nullptr;
-
-// Bridge native ESP-IDF callbacks to our instance cleanly via ESPHome
-static void gattc_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) {
-    if (s_instance)
-        s_instance->gattc_event_handler(event, gattc_if, param);
-}
 
 void MinirigBLEComponent::setup() {
-    s_instance = this;
-    
-    // Register our callback router to the system array
-    esp_ble_gattc_register_callback(gattc_cb);
-    
-    // Use a unique App ID (7) to safely bypass ESPHome's pre-allocated slots
-    esp_ble_gattc_app_register(7); 
-    
-    ESP_LOGI(TAG, "Minirig BLE Custom Component queued for OS stack registration...");
+    // Register with ESPHome's BLE dispatcher instead of the raw ESP-IDF global
+    // slot — the global slot is owned by esp32_ble and gets re-registered after
+    // any component that tries to steal it.
+    esp32_ble::global_ble->register_gattc_event_handler(this);
+
+    esp_ble_gattc_app_register(7);
+
+    ESP_LOGI(TAG, "Minirig BLE Component queued for OS stack registration...");
 }
 
 void MinirigBLEComponent::dump_config() {

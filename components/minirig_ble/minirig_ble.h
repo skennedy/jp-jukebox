@@ -3,6 +3,7 @@
 #include "esphome/core/component.h"
 #include "esphome/components/sensor/sensor.h"
 #include "esphome/components/esp32_ble_tracker/esp32_ble_tracker.h"
+#include "esphome/components/esp32_ble/esp32_ble.h"
 #include <vector>
 #include <string>
 #include <esp_gattc_api.h>
@@ -33,7 +34,9 @@ struct MinirigDevice {
     bool handles_found{false};
 };
 
-class MinirigBLEComponent : public PollingComponent, public esp32_ble_tracker::ESPBTDeviceListener {
+class MinirigBLEComponent : public PollingComponent,
+                            public esp32_ble_tracker::ESPBTDeviceListener,
+                            public esp32_ble::GATTCEventHandler {
 public:
     void setup() override;
     void dump_config() override;
