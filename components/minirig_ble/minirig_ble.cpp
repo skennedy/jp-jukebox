@@ -18,14 +18,13 @@ static void gattc_cb(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble
 void MinirigBLEComponent::setup() {
     s_instance = this;
     
-    // REMOVED: global_esp32_ble_tracker->register_listener(this);
-    // ESPHome handles this automatically via the python script!
-    
-    // Register callback using ESPHome's internal open ID slots
+    // Register our callback router to the system array
     esp_ble_gattc_register_callback(gattc_cb);
-    esp_ble_gattc_app_register(1); // Keep separated from ESPHome app ID 0
     
-    ESP_LOGI(TAG, "Minirig BLE framework listener registered.");
+    // Use a unique App ID (7) to safely bypass ESPHome's pre-allocated slots
+    esp_ble_gattc_app_register(7); 
+    
+    ESP_LOGI(TAG, "Minirig BLE Custom Component queued for OS stack registration...");
 }
 
 void MinirigBLEComponent::dump_config() {
@@ -116,12 +115,13 @@ void MinirigBLEComponent::handle_notify_(MinirigDevice &dev, const uint8_t *data
 void MinirigBLEComponent::gattc_event_handler(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_gattc_cb_param_t *param) {
     switch (event) {
     case ESP_GATTC_REG_EVT:
-        // Only accept the registration if it matches our custom app_id (1)
-        if (param->reg.status == ESP_GATT_OK && param->reg.app_id == 1) {
+        // Validate that this callback is explicitly meant for our custom engine (app_id 7)
+        if (param->reg.status == ESP_GATT_OK && param->reg.app_id == 7) {
             gattc_if_ = gattc_if;
             ESP_LOGI(TAG, "GATT API successfully bound to custom interface slot ID: %d", gattc_if_);
         }
         break;
+
 
     case ESP_GATTC_CONNECT_EVT: {
         auto *dev = find_by_mac(param->connect.remote_bda);
