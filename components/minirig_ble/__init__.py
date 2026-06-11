@@ -11,6 +11,7 @@ from esphome.const import (
     ENTITY_CATEGORY_DIAGNOSTIC,
 )
 
+# Crucial dependencies to ensure the compiler loads our parent classes
 DEPENDENCIES = ["esp32_ble_tracker"]
 AUTO_LOAD = ["sensor"]
 MULTI_CONF = True
@@ -51,7 +52,12 @@ CONFIG_SCHEMA = cv.Schema(
 
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
+    
+    # Register as a standard polling component
     await cg.register_component(var, config)
+    
+    # CRITICAL: Automatically registers this component class 
+    # to the ESPHome global BLE tracker listener engine array.
     await esp32_ble_tracker.register_ble_device(var, config)
 
     for minirig in config[CONF_MINIRIGS]:
