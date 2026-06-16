@@ -1,6 +1,7 @@
 ble_client:
   - mac_address: ${minirig_mac}
     id: ${minirig_id}
+    auto_connect: true
 
 script:
   - id: poll_${minirig_id}
