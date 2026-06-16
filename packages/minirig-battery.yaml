@@ -10,19 +10,23 @@ script:
           service_uuid: "49535343-fe7d-4ae5-8fa9-9fafd205e455"
           characteristic_uuid: "49535343-8841-43f4-a8d4-ecbe34729bb3"
           value: [0x43, 0x56, 0x42] # CVB
-      - delay: 200ms
-      - component.update: ${minirig_id}_battery
 
 sensor:
   - platform: ble_client
+    type: characteristic
     ble_client_id: ${minirig_id}
     id: ${minirig_id}_battery
     name: "${minirig_name} Battery Voltage"
     service_uuid: "49535343-fe7d-4ae5-8fa9-9fafd205e455"
     characteristic_uuid: "49535343-1e4d-4bd9-ba61-23c647249616"
+    notify: true
     update_interval: never
+    unit_of_measurement: "V"
+    accuracy_decimals: 2
+    device_class: voltage
+    state_class: measurement
     lambda: |-
       std::string s(x.begin(), x.end());
       auto pos = s.find("+");
       if (pos == std::string::npos) return NAN;
-      return std::stof(s.substr(pos + 1));
+      return std::stof(s.substr(pos + 1)) / 1000.0f;
