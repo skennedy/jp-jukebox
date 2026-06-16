@@ -10,4 +10,22 @@ packages:
     ref: main
     refresh: 0s
     files:
-      - jp-jukebox.yaml
+      - path: jp-jukebox.yaml
+      - path: packages/minirig.yaml
+        vars:
+          minirig_id: minirig_left
+          minirig_name: "Minirig Left"
+          minirig_mac: "AA:BB:CC:DD:EE:FF"
+      - path: packages/minirig.yaml
+        vars:
+          minirig_id: minirig_right
+          minirig_name: "Minirig Right"
+          minirig_mac: "11:22:33:44:55:66"
+
+interval:
+  - interval: 30m
+    then:
+      - script.execute: poll_minirig_left
+      - script.wait: poll_minirig_left
+      - script.execute: poll_minirig_right
+      - script.wait: poll_minirig_right

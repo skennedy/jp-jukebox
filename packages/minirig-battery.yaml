@@ -1,0 +1,28 @@
+ble_client:
+  - mac_address: ${minirig_mac}
+    id: ${minirig_id}
+
+script:
+  - id: poll_${minirig_id}
+    then:
+      - ble_client.ble_write:
+          id: ${minirig_id}
+          service_uuid: "FFF0"
+          characteristic_uuid: "FFF2"
+          value: [0x43, 0x56, 0x42]  # "CVB"
+      - delay: 200ms
+      - component.update: ${minirig_id}_battery
+
+sensor:
+  - platform: ble_client
+    ble_client_id: ${minirig_id}
+    id: ${minirig_id}_battery
+    name: "${minirig_name} Battery Voltage"
+    service_uuid: "FFF0"
+    characteristic_uuid: "FFF1"
+    update_interval: never
+    lambda: |-
+      std::string s(x.begin(), x.end());
+      auto pos = s.find("+");
+      if (pos == std::string::npos) return NAN;
+      return std::stof(s.substr(pos + 1));
