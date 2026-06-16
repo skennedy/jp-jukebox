@@ -9,7 +9,7 @@ script:
           id: ${minirig_id}
           service_uuid: "49535343-fe7d-4ae5-8fa9-9fafd205e455"
           characteristic_uuid: "49535343-8841-43f4-a8d4-ecbe34729bb3"
-          value: "CVB"
+          value: [0x43, 0x56, 0x42] # CVB
       - delay: 200ms
       - component.update: ${minirig_id}_battery
 
