@@ -11,12 +11,12 @@ packages:
     refresh: 0s
     files:
       - path: jp-jukebox.yaml
-      - path: packages/minirig.yaml
+      - path: packages/minirig-battery.yaml
         vars:
           minirig_id: minirig_left
           minirig_name: "Minirig Left"
           minirig_mac: "AA:BB:CC:DD:EE:FF"
-      - path: packages/minirig.yaml
+      - path: packages/minirig-battery.yaml
         vars:
           minirig_id: minirig_right
           minirig_name: "Minirig Right"

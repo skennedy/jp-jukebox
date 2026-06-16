@@ -11,7 +11,7 @@ packages:
     refresh: 0s
     files:
       - path: jp-jukebox.yaml
-      - path: packages/minirig.yaml
+      - path: packages/minirig-battery.yaml
         vars:
           minirig_id: minirig
           minirig_name: "Minirig"
