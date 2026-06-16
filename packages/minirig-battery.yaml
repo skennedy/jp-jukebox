@@ -7,9 +7,9 @@ script:
     then:
       - ble_client.ble_write:
           id: ${minirig_id}
-          service_uuid: "FFF0"
-          characteristic_uuid: "FFF2"
-          value: [0x43, 0x56, 0x42]  # "CVB"
+          service_uuid: "49535343-fe7d-4ae5-8fa9-9fafd205e455"
+          characteristic_uuid: "49535343-8841-43f4-a8d4-ecbe34729bb3"
+          value: "CVB"
       - delay: 200ms
       - component.update: ${minirig_id}_battery
 
@@ -18,8 +18,8 @@ sensor:
     ble_client_id: ${minirig_id}
     id: ${minirig_id}_battery
     name: "${minirig_name} Battery Voltage"
-    service_uuid: "FFF0"
-    characteristic_uuid: "FFF1"
+    service_uuid: "49535343-fe7d-4ae5-8fa9-9fafd205e455"
+    characteristic_uuid: "49535343-1e4d-4bd9-ba61-23c647249616"
     update_interval: never
     lambda: |-
       std::string s(x.begin(), x.end());
